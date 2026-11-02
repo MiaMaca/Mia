@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kairo — Fotografía de Ecosistemas</title>
+    <meta name="description" content="Galería editorial de fotografía artística dedicada a los ecosistemas del planeta.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0b0d0a;
+            --color-bg-alt: #121614;
+            --color-forest: #1a2e1f;
+            --color-moss: #4a5d3a;
+            --color-sand: #c9b79c;
+            --color-warm: #f5f1e8;
+            --color-warm-dim: #b8b2a4;
+            --color-line: rgba(245, 241, 232, 0.12);
+            --font-serif: 'Playfair Display', Georgia, serif;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --container: 1280px;
+            --ease: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-sans);
+            background: var(--color-bg);
+            color: var(--color-warm);
+            line-height: 1.6;
+            font-weight: 300;
+            overflow-x: hidden;
+        }
+        img { max-width: 100%; display: block; }
+        a { color: inherit; text-decoration: none; }
+        button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+        .loader {
+            position: fixed; inset: 0;
+            background: var(--color-bg);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.8s var(--ease), visibility 0.8s;
+        }
+        .loader.hidden { opacity: 0; visibility: hidden; }
+        .loader-mark {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: 1.5rem;
+            letter-spacing: 0.15em;
+            color: var(--color-sand);
+        }
+
+        .site-header {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 1.5rem 3rem;
+            transition: all 0.4s var(--ease);
+        }
+        .site-header.scrolled {
+            background: rgba(11, 13, 10, 0.95);
+            padding: 1rem 3rem;
+            border-bottom: 1px solid var(--color-line);
+        }
+        .header-inner {
+            max-width: var(--container);
+            margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .logo {
+            font-family: var(--font-serif);
+            font-size: 1.4rem;
+            letter-spacing: 0.05em;
+            font-weight: 400;
+        }
+        .main-nav { display: flex; gap: 2.5rem; }
+        .main-nav a {
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--color-warm-dim);
+            transition: color 0.3s;
+        }
+        .main-nav a:hover { color: var(--color-warm); }
+
+        .hero {
+            position: relative;
+            height: 100vh;
+            min-height: 640px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .hero-bg {
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, #1a2e1f 0%, #2d4a3a 100%);
+        }
+        .hero-overlay {
+            position: absolute; inset: 0;
+            background: rgba(11, 13, 10, 0.4);
+        }
+        .hero-content {
+            position: relative; z-index: 2;
+            text-align: center;
+            padding: 0 2rem;
+            max-width: 900px;
+        }
+        .hero-eyebrow {
+            font-size: 0.8rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--color-sand);
+            margin-bottom: 2rem;
+        }
+        .hero-title {
+            font-family: var(--font-serif);
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 400;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+        }
+        .hero-subtitle {
+            font-size: clamp(1rem, 1.4vw, 1.2rem);
+            color: var(--color-warm-dim);
+            font-style: italic;
+            font-family: var(--font-serif);
+            margin-bottom: 3rem;
+        }
+        .btn-primary {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            border: 1px solid var(--color-sand);
+            color: var(--color-warm);
+            font-size: 0.8rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            transition: all 0.4s var(--ease);
+        }
+        .btn-primary:hover {
+            background: var(--color-sand);
+            color: var(--color-bg);
+        }
+
+        section { padding: 6rem 3rem; }
+        .section-header {
+            max-width: 800px;
+            margin: 0 auto 4rem;
+            text-align: center;
+        }
+        .section-eyebrow {
+            font-size: 0.75rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--color-sand);
+            margin-bottom: 1rem;
+        }
+        .section-title {
+            font-family: var(--font-serif);
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+        }
+
+        .filters {
+            max-width: var(--container);
+            margin: 0 auto 3rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+        .chip {
+            padding: 0.5rem 1.2rem;
+            border: 1px solid var(--color-line);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--color-warm-dim);
+            transition: all 0.3s;
+        }
+        .chip:hover, .chip.active {
+            border-color: var(--color-sand);
+            color: var(--color-warm);
+            background: rgba(201, 183, 156, 0.1);
+        }
+
+        .gallery-grid {
+            max-width: var(--container);
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        .photo-card {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            background: var(--color-bg-alt);
+            border-radius: 4px;
+            transition: transform 0.4s var(--ease);
+            aspect-ratio: 4/3;
+        }
+        .photo-card:hover { transform: translateY(-4px); }
+        .photo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s var(--ease);
+        }
+        .photo-card:hover img { transform: scale(1.05); }
+        .photo-card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(11,13,10,0.95) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s var(--ease);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 2rem;
+        }
+        .photo-card:hover .photo-card-overlay { opacity: 1; }
+        .photo-card-category {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--color-sand);
+            margin-bottom: 0.5rem;
+        }
+        .photo-card-title {
+            font-family: var(--font-serif);
+            font-size: 1.4rem;
+            font-style: italic;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        .modal.open { display: flex; }
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(11, 13, 10, 0.95);
+        }
+        .modal-content {
+            position: relative;
+            max-width: 1100px;
+            width: 100%;
+            background: var(--color-bg-alt);
+            border: 1px solid var(--color-line);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            color: var(--color-warm);
+            background: rgba(11,13,10,0.8);
+            border-radius: 50%;
+            z-index: 10;
+        }
+        .modal-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+        .modal-image-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            min-height: 500px;
+        }
+        .modal-info {
+            padding: 2.5rem;
+        }
+        .modal-title {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+        .modal-quote {
+            font-family: var(--font-serif);
+            font-style: italic;
+            color: var(--color-sand);
+            border-left: 2px solid var(--color-sand);
+            padding-left: 1rem;
+            margin: 1.5rem 0;
+        }
+        .modal-section {
+            margin: 1.5rem 0;
+        }
+        .modal-section h4 {
+            font-family: var(--font-serif);
+            color: var(--color-sand);
+            margin-bottom: 0.8rem;
+            font-style: italic;
+        }
+        .modal-section p {
+            line-height: 1.7;
+            color: var(--color-warm);
+        }
+        .meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem 0;
+            border-top: 1px solid var(--color-line);
+            border-bottom: 1px solid var(--color-line);
+        }
+        .meta-item-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--color-warm-dim);
+        }
+        .echo-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        .echo-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--color-line);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-style: italic;
+            font-family: var(--font-serif);
+        }
+        .echo-btn.active {
+            background: var(--color-sand);
+            color: var(--color-bg);
+            border-color: var(--color-sand);
+        }
+        .echo-text {
+            font-family: var(--font-serif);
+            font-style: italic;
+            padding: 1.5rem;
+            background: rgba(74, 93, 58, 0.1);
+            border-radius: 4px;
+            min-height: 80px;
+        }
+        .mira-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            border: 1px solid var(--color-sand);
+            color: var(--color-sand);
+            font-size: 0.8rem;
+            margin: 1rem 0;
+        }
+        .mira-toggle.active {
+            background: var(--color-sand);
+            color: var(--color-bg);
+        }
+        .hotspot {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-sand);
+            border: 2px solid var(--color-bg);
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            z-index: 5;
+        }
+        .hotspot.visible { opacity: 1; }
+        .hotspot-tooltip {
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-bg);
+            border: 1px solid var(--color-sand);
+            padding: 0.8rem;
+            width: 200px;
+            font-size: 0.8rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 6;
+        }
+        .hotspot-tooltip.show { opacity: 1; }
+        .modal-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--color-line);
+        }
+        .action-btn {
+            padding: 0.6rem 1.2rem;
+            border: 1px solid var(--color-line);
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .action-btn:hover {
+            border-color: var(--color-sand);
+            color: var(--color-sand);
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 48px;
+            height: 48px;
+            background: var(--color-sand);
+            color: var(--color-bg);
+            border-radius: 50%;
+            font-size: 1.2rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s var(--ease);
+        }
+        .back-to-top.visible { opacity: 1; visibility: visible; }
+
+        @media (max-width: 768px) {
+            .site-header { padding: 1rem 1.5rem; }
+            .main-nav { display: none; }
+            section { padding: 4rem 1.5rem; }
+            .gallery-grid { grid-template-columns: 1fr; }
+            .modal-body { grid-template-columns: 1fr; }
+            .modal-info { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="loader" id="loader">
+        <div class="loader-mark">Kairo</div>
+    </div>
+
+    <header class="site-header" id="siteHeader">
+        <div class="header-inner">
+            <a href="#inicio" class="logo">Kairo</a>
+            <nav class="main-nav">
+                <a href="#inicio">Inicio</a>
+                <a href="#galeria">Galería</a>
+                <a href="#historias">Historias</a>
+                <a href="#proyecto">Sobre el proyecto</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero" id="inicio">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <p class="hero-eyebrow">Fotografía de ecosistemas</p>
+            <h1 class="hero-title">La naturaleza no necesita hablar para contarlo todo.</h1>
+            <p class="hero-subtitle">Fotografías de lugares que todavía conservan el misterio de estar vivos.</p>
+            <a href="#galeria" class="btn-primary">Explorar la colección</a>
+        </div>
+    </section>
+
+    <section class="gallery-section" id="galeria">
+        <div class="section-header">
+            <p class="section-eyebrow">Colección</p>
+            <h2 class="section-title">Ecosistemas del planeta</h2>
+        </div>
+
+        <div class="filters">
+            <button class="chip active" data-filter="all">Todos</button>
+            <button class="chip" data-filter="bosque">Bosques</button>
+            <button class="chip" data-filter="marino">Marino</button>
+            <button class="chip" data-filter="selva">Selvas</button>
+            <button class="chip" data-filter="paisaje">Paisajes</button>
+            <button class="chip" data-filter="micro">Detalles</button>
+        </div>
+
+        <div class="gallery-grid" id="galleryGrid"></div>
+    </section>
+
+    <section class="timeline-section" id="historias">
+        <div class="section-header">
+            <p class="section-eyebrow">Cuaderno de campo</p>
+            <h2 class="section-title">Instantes del planeta</h2>
+        </div>
+        <div class="timeline" id="timeline"></div>
+    </section>
+
+    <section class="about-section" id="proyecto">
+        <div class="section-header">
+            <p class="section-eyebrow">Sobre el proyecto</p>
+            <h2 class="section-title">Una galería que escucha al planeta</h2>
+            <p>Kairo es un proyecto fotográfico editorial dedicado a explorar la relación entre la imagen, la emoción y la biodiversidad.</p>
+        </div>
+    </section>
+
+    <div class="modal" id="photoModal">
+        <div class="modal-backdrop" data-close></div>
+        <div class="modal-content">
+            <button class="modal-close" data-close>×</button>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <button class="back-to-top" id="backToTop">↑</button>
+
+    <script>
+        const PHOTOS = [
+            {
+                id: 'p01',
+                title: 'Bosque en niebla',
+                category: 'bosque',
+                emotions: ['calma', 'misterio'],
+                image: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1200',
+                location: 'Bosque templado',
+                ecosystem: 'Bosque templado con niebla',
+                description: 'Un bosque envuelto en niebla al amanecer. La luz se filtra entre los árboles.',
+                context: 'Los bosques templados húmedos son ecosistemas ricos en biodiversidad.',
+                curiosity: 'El musgo puede absorber hasta 20 veces su peso en agua.',
+                conservation: 'Muchos bosques están amenazados por la tala.',
+                quote: 'Donde la niebla se detiene, el tiempo aprende a callar.',
+                hidden: {
+                    emotion: 'Esta imagen evoca calma y recogimiento.',
+                    invisible: 'Bajo la quietud, el bosque está lleno de actividad.',
+                    footprint: 'Los bosques enfrentan presión por fragmentación.'
+                },
+                echo: {
+                    calma: 'El bosque respira despacio. Cada gota es un reloj de agua.',
+                    misterio: 'Lo que se ve es solo la superficie.',
+                    asombro: 'La luz atraviesa la niebla como un secreto.',
+                    soledad: 'Solo la presencia antigua de los árboles.',
+                    esperanza: 'El bosque sigue creciendo.',
+                    fragilidad: 'La niebla es hermosa pero frágil.'
+                },
+                hotspots: [
+                    { x: 30, y: 60, text: 'Musgo: absorbe humedad del aire.' },
+                    { x: 70, y: 40, text: 'Luz filtrada: claros en el dosel.' }
+                ]
+            },
+            {
+                id: 'p02',
+                title: 'Arrecife de coral',
+                category: 'marino',
+                emotions: ['asombro', 'fragilidad'],
+                image: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1200',
+                location: 'Arrecife tropical',
+                ecosystem: 'Arrecife de coral',
+                description: 'Un arrecife teñido de azules profundos. La vida bulle en cada grieta.',
+                context: 'Los arrecifes albergan el 25% de la vida marina.',
+                curiosity: 'Los corales son animales en simbiosis con algas.',
+                conservation: 'Amenazados por el calentamiento oceánico.',
+                quote: 'Bajo el mar, cada color es una vida que insiste.',
+                hidden: {
+                    emotion: 'Asombro por la densidad de vida.',
+                    invisible: 'El arrecife es una ciudad con roles específicos.',
+                    footprint: 'El blanqueamiento aumenta cada década.'
+                },
+                echo: {
+                    asombro: 'Cada centímetro es un universo.',
+                    fragilidad: 'Un grado más y todo cambia.',
+                    calma: 'El agua envuelve como un abrazo.',
+                    misterio: 'Rayos de luz como columnas de templo.',
+                    soledad: 'El arrecife existe en su tiempo.',
+                    esperanza: 'Sigue construyéndose milenios.'
+                },
+                hotspots: [
+                    { x: 40, y: 50, text: 'Coral: esqueleto calcáreo.' },
+                    { x: 75, y: 30, text: 'Luz: fotosíntesis de zooxantelas.' }
+                ]
+            },
+            {
+                id: 'p03',
+                title: 'Selva tropical',
+                category: 'selva',
+                emotions: ['asombro', 'misterio'],
+                image: 'https://images.unsplash.com/photo-1516934024742-b461fba47600?w=1200',
+                location: 'Selva tropical',
+                ecosystem: 'Selva húmeda',
+                description: 'La selva se alza como catedral verde. Luz entre las copas.',
+                context: 'Las selvas cubren 6% de la superficie terrestre.',
+                curiosity: 'Una hectárea puede tener 400 especies de árboles.',
+                conservation: 'La deforestación avanza alarmantemente.',
+                quote: 'La selva no se mira: se escucha.',
+                hidden: {
+                    emotion: 'Asombro por la escala.',
+                    invisible: 'Orquídeas y bromelias en cada rama.',
+                    footprint: 'Millones de hectáreas destruidas.'
+                },
+                echo: {
+                    asombro: 'Cinco mundos apilados en vertical.',
+                    misterio: 'La luz decide cuánto revelar.',
+                    calma: 'El pulso del goteo constante.',
+                    soledad: 'Un mundo aparte.',
+                    esperanza: 'La selva rebrota siempre.',
+                    fragilidad: 'Una motosierra y siglos perdidos.'
+                },
+                hotspots: [
+                    { x: 50, y: 20, text: 'Dosel: capta la luz.' },
+                    { x: 25, y: 65, text: 'Epífitas: comunidades enteras.' }
+                ]
+            },
+            {
+                id: 'p04',
+                title: 'Montañas nevadas',
+                category: 'paisaje',
+                emotions: ['asombro', 'soledad'],
+                image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200',
+                location: 'Cadena montañosa',
+                ecosystem: 'Alta montaña',
+                description: 'Picos nevados sobre nubes. Luz del amanecer.',
+                context: 'Las montañas albergan ecosistemas únicos.',
+                curiosity: 'Los glaciares almacenan 75% del agua dulce.',
+                conservation: 'Retroceso glaciar acelerado.',
+                quote: 'Las montañas no se conquistan.',
+                hidden: {
+                    emotion: 'Asombro y pequeñez.',
+                    invisible: 'La roca se fractura lentamente.',
+                    footprint: 'Turismo deja erosión.'
+                },
+                echo: {
+                    asombro: 'Escala abrumadora.',
+                    soledad: 'Silencio anterior al lenguaje.',
+                    calma: 'Paciencia de roca y hielo.',
+                    misterio: 'Secretos tras cada arista.',
+                    esperanza: 'La nieve vuelve.',
+                    fragilidad: 'Glaciares retroceden.'
+                },
+                hotspots: [
+                    { x: 50, y: 30, text: 'Cumbres: reflejan radiación.' },
+                    { x: 30, y: 70, text: 'Mar de nubes.' }
+                ]
+            },
+            {
+                id: 'p05',
+                title: 'Campo de flores',
+                category: 'micro',
+                emotions: ['esperanza', 'calma'],
+                image: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1200',
+                location: 'Pradera',
+                ecosystem: 'Pradera de flores',
+                description: 'Flores silvestres ondean. Vida en colores.',
+                context: 'Esenciales para polinizadores.',
+                curiosity: 'Una abeja visita miles de flores.',
+                conservation: 'Desaparecen por agricultura.',
+                quote: 'Cada flor es promesa.',
+                hidden: {
+                    emotion: 'Alegría y esperanza.',
+                    invisible: 'Polinizadores trabajan.',
+                    footprint: 'Pesticidas amenazan.'
+                },
+                echo: {
+                    esperanza: 'Las flores vuelven cada año.',
+                    calma: 'Danza lenta del viento.',
+                    asombro: 'Cada flor es universo.',
+                    misterio: '¿Cuántas especies?',
+                    soledad: 'Naturaleza pura.',
+                    fragilidad: 'Un arado y todo perdido.'
+                },
+                hotspots: [
+                    { x: 45, y: 50, text: 'Flores: atraen polinizadores.' },
+                    { x: 70, y: 35, text: 'Cielo: buen tiempo.' }
+                ]
+            },
+            {
+                id: 'p06',
+                title: 'Lago alpino',
+                category: 'paisaje',
+                emotions: ['calma', 'misterio'],
+                image: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200',
+                location: 'Lago de montaña',
+                ecosystem: 'Lago alpino',
+                description: 'Lago refleja cumbres. Espejo perfecto.',
+                context: 'Reservas de agua dulce.',
+                curiosity: 'Agua con miles de años.',
+                conservation: 'Cambio climático afecta.',
+                quote: 'El agua es espejo del cielo.',
+                hidden: {
+                    emotion: 'Calma profunda.',
+                    invisible: 'Ecosistemas acuáticos.',
+                    footprint: 'Deshielo acelerado.'
+                },
+                echo: {
+                    calma: 'Espejo de tranquilidad.',
+                    misterio: '¿Qué hay en profundidades?',
+                    asombro: 'Reflejo duplica belleza.',
+                    soledad: 'Tiempo propio.',
+                    esperanza: 'Agua alimentada.',
+                    fragilidad: 'Puede secarse.'
+                },
+                hotspots: [
+                    { x: 50, y: 50, text: 'Reflejo perfecto.' },
+                    { x: 30, y: 30, text: 'Montañas: fuente.' }
+                ]
+            }
+        ];
+
+        const CATEGORIES = {
+            bosque: 'Bosques',
+            marino: 'Marino',
+            selva: 'Selvas',
+            paisaje: 'Paisajes',
+            micro: 'Detalles'
+        };
+
+        let currentPhotoIndex = 0;
+        let filteredPhotos = [...PHOTOS];
+        let activeFilter = 'all';
+        let favorites = JSON.parse(localStorage.getItem('kairo_favorites') || '[]');
+
+        const $ = (sel) => document.querySelector(sel);
+        const $$ = (sel) => document.querySelectorAll(sel);
+
+        window.addEventListener('load', () => {
+            setTimeout(() => $('#loader').classList.add('hidden'), 400);
+        });
+
+        window.addEventListener('scroll', () => {
+            const header = $('#siteHeader');
+            const backToTop = $('#backToTop');
+            if (window.scrollY > 80) header.classList.add('scrolled');
+            else header.classList.remove('scrolled');
+            if (window.scrollY > 600) backToTop.classList.add('visible');
+            else backToTop.classList.remove('visible');
+        });
+
+        $('#backToTop').addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        function renderGallery() {
+            const grid = $('#galleryGrid');
+            grid.innerHTML = '';
+
+            filteredPhotos = PHOTOS.filter(p => {
+                if (activeFilter === 'all') return true;
+                return p.category === activeFilter;
+            });
+
+            filteredPhotos.forEach((photo, index) => {
+                const card = document.createElement('article');
+                card.className = 'photo-card';
+                card.innerHTML = `
+                    <img src="${photo.image}" alt="${photo.title}" loading="lazy">
+                    <div class="photo-card-overlay">
+                        <div class="photo-card-category">${CATEGORIES[photo.category]}</div>
+                        <h3 class="photo-card-title">${photo.title}</h3>
+                    </div>
+                `;
+                card.addEventListener('click', () => openModal(photo.id));
+                grid.appendChild(card);
+            });
+        }
+
+        $$('.chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                $$('.chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                activeFilter = chip.dataset.filter;
+                renderGallery();
+            });
+        });
+
+        function openModal(photoId) {
+            const photo = PHOTOS.find(p => p.id === photoId);
+            if (!photo) return;
+            currentPhotoIndex = filteredPhotos.findIndex(p => p.id === photoId);
+
+            const modal = $('#photoModal');
+            const body = $('#modalBody');
+
+            body.innerHTML = `
+                <div class="modal-image-wrap">
+                    <img src="${photo.image}" alt="${photo.title}">
+                </div>
+                <div class="modal-info">
+                    <h2 class="modal-title">${photo.title}</h2>
+                    <p class="modal-quote">"${photo.quote}"</p>
+                    
+                    <div class="meta-grid">
+                        <div><div class="meta-item-label">Lugar</div><div>${photo.location}</div></div>
+                        <div><div class="meta-item-label">Ecosistema</div><div>${photo.ecosystem}</div></div>
+                    </div>
+
+                    <div class="modal-section">
+                        <h4>Descripción</h4>
+                        <p>${photo.description}</p>
+                    </div>
+
+                    <div class="modal-section">
+                        <h4>Contexto</h4>
+                        <p>${photo.context}</p>
+                    </div>
+
+                    <div class="modal-section">
+                        <h4>Curiosidad</h4>
+                        <p>${photo.curiosity}</p>
+                    </div>
+
+                    <div class="modal-section">
+                        <h4>Conservación</h4>
+                        <p>${photo.conservation}</p>
+                    </div>
+
+                    <div class="modal-section">
+                        <h4>Lo que no se ve</h4>
+                        <div style="margin-top: 1rem;">
+                            <p style="margin-bottom: 0.5rem;"><strong>Emoción:</strong> ${photo.hidden.emotion}</p>
+                            <p style="margin-bottom: 0.5rem;"><strong>Invisible:</strong> ${photo.hidden.invisible}</p>
+                            <p><strong>Huella:</strong> ${photo.hidden.footprint}</p>
+                        </div>
+                    </div>
+
+                    <div class="modal-section">
+                        <h4>El eco de la imagen</h4>
+                        <div class="echo-selector">
+                            ${Object.keys(photo.echo).map(emotion => 
+                                `<button class="echo-btn" data-echo="${emotion}">${emotion}</button>`
+                            ).join('')}
+                        </div>
+                        <div class="echo-text" id="echoText">Selecciona una emoción</div>
+                    </div>
+
+                    <div class="modal-section">
+                        <h4>Mira de nuevo</h4>
+                        <button class="mira-toggle" id="miraToggle">◉ Activar puntos</button>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button class="action-btn" id="btnCopy">Copiar enlace</button>
+                        <button class="action-btn" id="btnFullscreen">Pantalla completa</button>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+
+            // Echo selector
+            $$('#echoSelector .echo-btn, .echo-selector .echo-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    $$('.echo-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const echoText = $('#echoText');
+                    echoText.style.opacity = '0';
+                    setTimeout(() => {
+                        echoText.textContent = photo.echo[btn.dataset.echo];
+                        echoText.style.opacity = '1';
+                    }, 200);
+                });
+            });
+
+            // Mira de nuevo
+            $('#miraToggle').addEventListener('click', function() {
+                this.classList.toggle('active');
+                const isActive = this.classList.contains('active');
+                this.textContent = isActive ? '◉ Ocultar puntos' : '◉ Activar puntos';
+                renderHotspots(photo, isActive);
+            });
+
+            // Actions
+            $('#btnCopy').addEventListener('click', () => {
+                navigator.clipboard.writeText(window.location.href + '#photo-' + photo.id);
+            });
+
+            $('#btnFullscreen').addEventListener('click', () => {
+                const img = $('.modal-image-wrap img');
+                if (img.requestFullscreen) img.requestFullscreen();
+            });
+
+            $$('.modal-close, .modal-backdrop').forEach(el => {
+                el.addEventListener('click', closeModal);
+            });
+        }
+
+        function renderHotspots(photo, visible) {
+            const wrap = $('.modal-image-wrap');
+            wrap.querySelectorAll('.hotspot').forEach(h => h.remove());
+
+            if (!visible || !photo.hotspots) return;
+
+            photo.hotspots.forEach(hs => {
+                const dot = document.createElement('button');
+                dot.className = 'hotspot';
+                dot.style.left = hs.x + '%';
+                dot.style.top = hs.y + '%';
+                
+                const tooltip = document.createElement('div');
+                tooltip.className = 'hotspot-tooltip';
+                tooltip.textContent = hs.text;
+                dot.appendChild(tooltip);
+
+                dot.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    $$('.hotspot-tooltip').forEach(t => t.classList.remove('show'));
+                    tooltip.classList.toggle('show');
+                });
+
+                wrap.appendChild(dot);
+                setTimeout(() => dot.classList.add('visible'), 50);
+            });
+        }
+
+        function closeModal() {
+            $('#photoModal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        function renderTimeline() {
+            const timeline = $('#timeline');
+            if (!timeline) return;
+            timeline.innerHTML = '';
+            
+            PHOTOS.forEach(photo => {
+                const item = document.createElement('div');
+                item.style.cssText = 'padding: 1.5rem; border-bottom: 1px solid var(--color-line); cursor: pointer;';
+                item.innerHTML = `
+                    <h3 style="font-family: var(--font-serif); font-style: italic; margin-bottom: 0.5rem;">${photo.title}</h3>
+                    <p style="color: var(--color-warm-dim); font-size: 0.9rem;">${photo.location}</p>
+                    <p style="margin-top: 0.5rem;">${photo.description}</p>
+                `;
+                item.addEventListener('click', () => openModal(photo.id));
+                timeline.appendChild(item);
+            });
+        }
+
+        renderGallery();
+        renderTimeline();
+    </script>
+</body>
+</html>
